@@ -75,9 +75,30 @@ function App() {
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none"></div>
       <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none"></div>
 
-      <div className="flex h-screen overflow-hidden relative z-10">
-        {/* Sidebar */}
-        <aside className="w-64 glass border-r border-slate-700/50 hidden md:flex flex-col">
+      <div className="flex flex-col md:flex-row h-screen overflow-hidden relative z-10">
+        
+        {/* Mobile Header (Hidden on Desktop) */}
+        <header className="md:hidden glass border-b border-slate-700/50 p-4 flex justify-between items-center z-50 shrink-0">
+          <h1 className="text-xl font-bold gradient-text">ReminderPro</h1>
+          <div className="flex items-center gap-5">
+             <button onClick={() => setActiveTab('dashboard')} className={activeTab === 'dashboard' ? 'text-primary' : 'text-slate-400 hover:text-slate-200'} title="Dashboard">
+               <Home className="w-5 h-5" />
+             </button>
+             <button onClick={() => setActiveTab('calendar')} className={activeTab === 'calendar' ? 'text-primary' : 'text-slate-400 hover:text-slate-200'} title="Calendar">
+               <CalendarIcon className="w-5 h-5" />
+             </button>
+             <button onClick={() => setActiveTab('reminders')} className={activeTab === 'reminders' ? 'text-primary' : 'text-slate-400 hover:text-slate-200'} title="Reminders">
+               <Bell className="w-5 h-5" />
+             </button>
+             <div className="w-px h-5 bg-slate-700"></div>
+             <button onClick={handleLogout} className="text-slate-400 hover:text-red-400 transition-colors" title="Log Out">
+               <LogOut className="w-5 h-5" />
+             </button>
+          </div>
+        </header>
+
+        {/* Sidebar (Hidden on Mobile) */}
+        <aside className="w-64 glass border-r border-slate-700/50 hidden md:flex flex-col shrink-0">
           <div className="p-6">
             <h1 className="text-2xl font-bold gradient-text">ReminderPro</h1>
           </div>
