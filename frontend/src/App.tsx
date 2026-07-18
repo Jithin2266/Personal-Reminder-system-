@@ -1,13 +1,19 @@
 import { useState } from 'react';
-import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText } from 'lucide-react';
+import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText, LogOut, Trash2 } from 'lucide-react';
 import CreateReminderModal from './CreateReminderModal';
 
 function App() {
   const [calendarView, setCalendarView] = useState('weekly');
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [visibleEvents, setVisibleEvents] = useState(['hdfc', 'mom', 'internet']);
 
-  const userName = localStorage.getItem('userName') || 'User';
+  const userName = sessionStorage.getItem('userName') || 'User';
   const userInitial = userName.charAt(0).toUpperCase();
+
+  const handleLogout = () => {
+    sessionStorage.clear();
+    window.location.href = '/';
+  };
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -54,12 +60,17 @@ function App() {
           </div>
 
           <div className="p-4 border-t border-slate-700/50">
-            <div className="flex items-center gap-3 px-4 py-2">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center font-bold text-white shadow-lg">{userInitial}</div>
-              <div>
-                <p className="text-sm font-medium">{userName}</p>
-                <p className="text-xs text-slate-400">Free Plan</p>
+            <div className="flex items-center justify-between px-4 py-2">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-full bg-gradient-to-r from-primary to-secondary flex items-center justify-center font-bold text-dark shadow-lg">{userInitial}</div>
+                <div>
+                  <p className="text-sm font-medium">{userName}</p>
+                  <p className="text-xs text-slate-400">Free Plan</p>
+                </div>
               </div>
+              <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Log Out">
+                <LogOut className="w-5 h-5" />
+              </button>
             </div>
           </div>
         </aside>
@@ -92,22 +103,27 @@ function App() {
                   Action Needed Soon
                 </h3>
                 <div className="space-y-3 relative z-10">
-                  <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 flex items-center justify-between group hover:bg-slate-800/60 transition-colors">
-                    <div className="flex items-center gap-4">
-                      <input type="checkbox" className="w-5 h-5 rounded border-slate-600 bg-slate-700 text-primary focus:ring-primary focus:ring-offset-slate-900" />
-                      <div>
-                        <p className="font-medium text-slate-200">HDFC Credit Card Bill</p>
-                        <div className="flex items-center gap-3 mt-1">
-                          <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded flex items-center gap-1">
-                            <CreditCard className="w-3 h-3" /> Credit Card
-                          </span>
-                          <p className="text-xs text-red-400 flex items-center gap-1">
-                            Due in 2 days
-                          </p>
+                  {visibleEvents.includes('hdfc') && (
+                    <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 flex items-center justify-between group hover:bg-slate-800/60 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <input type="checkbox" className="w-5 h-5 rounded border-slate-600 bg-slate-700 text-primary focus:ring-primary focus:ring-offset-slate-900" />
+                        <div>
+                          <p className="font-medium text-slate-200">HDFC Credit Card Bill</p>
+                          <div className="flex items-center gap-3 mt-1">
+                            <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded flex items-center gap-1">
+                              <CreditCard className="w-3 h-3" /> Credit Card
+                            </span>
+                            <p className="text-xs text-red-400 flex items-center gap-1">
+                              Due in 2 days
+                            </p>
+                          </div>
                         </div>
                       </div>
+                      <button onClick={() => setVisibleEvents(prev => prev.filter(e => e !== 'hdfc'))} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
                     </div>
-                  </div>
+                  )}
                 </div>
               </section>
 
@@ -119,33 +135,43 @@ function App() {
                 </div>
                 <div className="space-y-4">
                   {/* Event Card */}
-                  <div className="glass p-5 rounded-2xl flex gap-5 items-center hover:scale-[1.01] transition-transform cursor-pointer border-l-4 border-l-pink-500">
-                    <div className="text-center w-16">
-                      <p className="text-lg font-bold text-white">July 20</p>
-                      <p className="text-xs text-slate-400">Saturday</p>
+                  {visibleEvents.includes('mom') && (
+                    <div className="glass p-5 rounded-2xl flex gap-5 items-center hover:scale-[1.01] transition-transform cursor-pointer border-l-4 border-l-pink-500 group">
+                      <div className="text-center w-16">
+                        <p className="text-lg font-bold text-white">July 20</p>
+                        <p className="text-xs text-slate-400">Saturday</p>
+                      </div>
+                      <div className="h-10 w-px bg-slate-700/50"></div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-white">Mom's Birthday</h4>
+                        <span className="text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded inline-flex items-center gap-1 mt-1">
+                          <Gift className="w-3 h-3" /> Birthday
+                        </span>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); setVisibleEvents(prev => prev.filter(ev => ev !== 'mom')); }} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <div className="h-10 w-px bg-slate-700/50"></div>
-                    <div>
-                      <h4 className="font-semibold text-white">Mom's Birthday</h4>
-                      <span className="text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded inline-flex items-center gap-1 mt-1">
-                        <Gift className="w-3 h-3" /> Birthday
-                      </span>
-                    </div>
-                  </div>
+                  )}
                   {/* Event Card */}
-                  <div className="glass p-5 rounded-2xl flex gap-5 items-center hover:scale-[1.01] transition-transform cursor-pointer border-l-4 border-l-green-500">
-                    <div className="text-center w-16">
-                      <p className="text-lg font-bold text-white">July 25</p>
-                      <p className="text-xs text-slate-400">Thursday</p>
+                  {visibleEvents.includes('internet') && (
+                    <div className="glass p-5 rounded-2xl flex gap-5 items-center hover:scale-[1.01] transition-transform cursor-pointer border-l-4 border-l-green-500 group">
+                      <div className="text-center w-16">
+                        <p className="text-lg font-bold text-white">July 25</p>
+                        <p className="text-xs text-slate-400">Thursday</p>
+                      </div>
+                      <div className="h-10 w-px bg-slate-700/50"></div>
+                      <div className="flex-1">
+                        <h4 className="font-semibold text-white">Internet Bill Invoice</h4>
+                        <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded inline-flex items-center gap-1 mt-1">
+                          <FileText className="w-3 h-3" /> Billing
+                        </span>
+                      </div>
+                      <button onClick={(e) => { e.stopPropagation(); setVisibleEvents(prev => prev.filter(ev => ev !== 'internet')); }} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <Trash2 className="w-5 h-5" />
+                      </button>
                     </div>
-                    <div className="h-10 w-px bg-slate-700/50"></div>
-                    <div>
-                      <h4 className="font-semibold text-white">Internet Bill Invoice</h4>
-                      <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded inline-flex items-center gap-1 mt-1">
-                        <FileText className="w-3 h-3" /> Billing
-                      </span>
-                    </div>
-                  </div>
+                  )}
                 </div>
               </section>
             </div>

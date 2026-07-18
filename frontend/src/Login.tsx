@@ -7,10 +7,10 @@ export default function Login() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!isLogin && name) {
-      localStorage.setItem('userName', name);
-    } else if (isLogin && !localStorage.getItem('userName')) {
+      sessionStorage.setItem('userName', name);
+    } else if (isLogin && !sessionStorage.getItem('userName')) {
       // Fallback for demo purposes if they login without registering first
-      localStorage.setItem('userName', 'User');
+      sessionStorage.setItem('userName', 'User');
     }
     window.location.href = '/dashboard';
   };
