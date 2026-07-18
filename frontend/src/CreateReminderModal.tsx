@@ -143,18 +143,31 @@ export default function CreateReminderModal({ isOpen, onClose, onAddReminder }: 
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-slate-300 mb-1">Repeat</label>
-                <select 
-                  value={formData.repeat}
-                  onChange={e => setFormData({...formData, repeat: e.target.value})}
-                  className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors appearance-none"
-                >
-                  <option value="None">None (One-time)</option>
-                  <option value="Daily">Daily</option>
-                  <option value="Weekly">Weekly</option>
-                  <option value="Monthly">Monthly</option>
-                  <option value="Yearly">Yearly</option>
-                </select>
+                <label className="block text-sm font-medium text-slate-300 mb-2">Repeat Frequency</label>
+                <div className="flex gap-6 items-center h-[50px] bg-slate-900/50 border border-slate-700 rounded-xl px-4">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="repeat"
+                      value="None"
+                      checked={formData.repeat === 'None'}
+                      onChange={e => setFormData({...formData, repeat: e.target.value})}
+                      className="w-4 h-4 text-primary bg-slate-700 border-slate-600 focus:ring-primary focus:ring-offset-slate-900 cursor-pointer"
+                    />
+                    <span className="text-white text-sm font-medium">One-time</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input 
+                      type="radio" 
+                      name="repeat"
+                      value="Monthly"
+                      checked={formData.repeat === 'Monthly'}
+                      onChange={e => setFormData({...formData, repeat: e.target.value})}
+                      className="w-4 h-4 text-primary bg-slate-700 border-slate-600 focus:ring-primary focus:ring-offset-slate-900 cursor-pointer"
+                    />
+                    <span className="text-white text-sm font-medium">Monthly (Always)</span>
+                  </label>
+                </div>
               </div>
             </div>
 
