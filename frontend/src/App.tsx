@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText, LogOut, Trash2 } from 'lucide-react';
 import CreateReminderModal from './CreateReminderModal';
 import FullCalendar from './FullCalendar';
+import RemindersList from './RemindersList';
 
 function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -75,7 +76,10 @@ function App() {
               <CalendarIcon className="w-5 h-5" />
               Calendar
             </button>
-            <button className="w-full flex items-center gap-3 px-4 py-3 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50 rounded-xl font-medium transition-colors">
+            <button 
+              onClick={() => setActiveTab('reminders')}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl font-medium transition-colors ${activeTab === 'reminders' ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'}`}
+            >
               <Bell className="w-5 h-5" />
               Reminders
             </button>
@@ -124,6 +128,8 @@ function App() {
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           {activeTab === 'calendar' ? (
             <FullCalendar reminders={reminders} />
+          ) : activeTab === 'reminders' ? (
+            <RemindersList reminders={reminders} onDelete={handleDeleteReminder} />
           ) : (
             <>
               <header className="flex justify-between items-center mb-8">
