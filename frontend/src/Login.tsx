@@ -3,38 +3,54 @@ import { useState } from 'react';
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
   const [name, setName] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setError('');
     
-    // Get the mobile number from the form
     const form = e.target as HTMLFormElement;
     const mobileInput = form.querySelector('input[type="tel"]') as HTMLInputElement;
+    const passInput = form.querySelector('input[type="password"]') as HTMLInputElement;
+    
     const rawMobile = mobileInput ? mobileInput.value : '';
-    // Strip spaces and special characters to ensure a consistent lookup key
     const mobile = rawMobile.replace(/\\D/g, '');
+    const password = passInput ? passInput.value : '';
 
     const users = JSON.parse(localStorage.getItem('mockUsers') || '{}');
 
     if (!isLogin && name) {
-      // Registration: Save to mock database and start session
-      users[mobile] = name;
+      if (users[mobile]) {
+        setError('An account with this mobile number already exists.');
+        return;
+      }
+      // Registration: Save to mock database
+      users[mobile] = { name, password };
       localStorage.setItem('mockUsers', JSON.stringify(users));
       sessionStorage.setItem('userName', name);
       sessionStorage.setItem('userMobile', mobile);
+      window.location.href = '/dashboard';
     } else if (isLogin) {
-      // Login: Retrieve from mock database based on mobile number
-      if (users[mobile]) {
-        sessionStorage.setItem('userName', users[mobile]);
-        sessionStorage.setItem('userMobile', mobile);
-      } else {
-        // Fallback if user not found in mock DB
-        sessionStorage.setItem('userName', 'Guest User');
-        sessionStorage.setItem('userMobile', mobile || 'guest');
+      // Login: Retrieve and validate
+      const user = users[mobile];
+      if (!user) {
+        setError('No account found with this mobile number.');
+        return;
       }
+      
+      const savedPassword = typeof user === 'string' ? '' : user.password;
+      const userName = typeof user === 'string' ? user : user.name;
+
+      // Only check password if they registered after this fix (so legacy test accounts still work)
+      if (typeof user === 'object' && savedPassword !== password) {
+        setError('Incorrect password. Please try again.');
+        return;
+      }
+
+      sessionStorage.setItem('userName', userName);
+      sessionStorage.setItem('userMobile', mobile);
+      window.location.href = '/dashboard';
     }
-    
-    window.location.href = '/dashboard';
   };
 
   return (
@@ -50,6 +66,12 @@ export default function Login() {
             {isLogin ? 'Welcome back! Please enter your details.' : 'Create a new account to get started.'}
           </p>
         </div>
+
+        {error && (
+          <div className="mb-6 p-3 rounded-lg bg-red-500/10 border border-red-500/50 text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           
