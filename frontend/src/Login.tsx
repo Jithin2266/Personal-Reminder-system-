@@ -6,12 +6,29 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    
+    // Get the mobile number from the form
+    const form = e.target as HTMLFormElement;
+    const mobileInput = form.querySelector('input[type="tel"]') as HTMLInputElement;
+    const mobile = mobileInput ? mobileInput.value : '';
+
+    const users = JSON.parse(localStorage.getItem('mockUsers') || '{}');
+
     if (!isLogin && name) {
+      // Registration: Save to mock database and start session
+      users[mobile] = name;
+      localStorage.setItem('mockUsers', JSON.stringify(users));
       sessionStorage.setItem('userName', name);
-    } else if (isLogin && !sessionStorage.getItem('userName')) {
-      // Fallback for demo purposes if they login without registering first
-      sessionStorage.setItem('userName', 'User');
+    } else if (isLogin) {
+      // Login: Retrieve from mock database based on mobile number
+      if (users[mobile]) {
+        sessionStorage.setItem('userName', users[mobile]);
+      } else {
+        // Fallback if user not found in mock DB
+        sessionStorage.setItem('userName', 'Guest User');
+      }
     }
+    
     window.location.href = '/dashboard';
   };
 
