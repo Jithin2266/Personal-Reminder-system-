@@ -211,40 +211,47 @@ function App() {
                     </div>
 
                     {calendarView === 'monthly' ? (
-                      <>
-                        {/* Monthly Calendar Grid */}
-                        <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-slate-400 font-medium">
-                          <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
-                        </div>
-                        <div className="grid grid-cols-7 gap-1 text-center text-sm">
-                          <div className="p-2 text-slate-500">28</div><div className="p-2 text-slate-500">29</div><div className="p-2 text-slate-500">30</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">1</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">2</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">3</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">4</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">5</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">6</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">7</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">8</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors relative">
-                            9 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-green-500 rounded-full"></span>
-                          </div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">10</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">11</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">12</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">13</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">14</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">15</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">16</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">17</div>
-                          {/* Current Day */}
-                          <div className="p-2 bg-primary text-dark font-bold rounded-lg cursor-pointer shadow-[0_0_10px_rgba(255,215,0,0.4)] relative">18</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors">19</div>
-                          <div className="p-2 hover:bg-slate-700 rounded-lg cursor-pointer transition-colors relative">
-                            20 <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1 h-1 bg-pink-500 rounded-full"></span>
-                          </div>
-                        </div>
-                      </>
+                      (() => {
+                        const today = new Date();
+                        const year = today.getFullYear();
+                        const month = today.getMonth();
+                        const daysInMonth = new Date(year, month + 1, 0).getDate();
+                        const firstDay = new Date(year, month, 1).getDay();
+                        
+                        const days = [];
+                        for (let i = 0; i < firstDay; i++) {
+                          days.push(<div key={`empty-${i}`} className="p-2 text-slate-500"></div>);
+                        }
+
+                        for (let i = 1; i <= daysInMonth; i++) {
+                          const isToday = today.getDate() === i;
+                          const hasReminders = reminders.some(r => {
+                            if (!r.date) return false;
+                            const rDate = new Date(r.date);
+                            return rDate.getDate() === i && rDate.getMonth() === month && rDate.getFullYear() === year;
+                          });
+
+                          days.push(
+                            <div key={`day-${i}`} className={`p-2 rounded-lg cursor-pointer transition-colors relative ${isToday ? 'bg-primary text-dark font-bold shadow-[0_0_10px_rgba(255,215,0,0.4)]' : 'hover:bg-slate-700'}`}>
+                              {i}
+                              {hasReminders && (
+                                <span className="absolute bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-primary rounded-full"></span>
+                              )}
+                            </div>
+                          );
+                        }
+
+                        return (
+                          <>
+                            <div className="grid grid-cols-7 gap-1 text-center text-xs mb-2 text-slate-400 font-medium">
+                              <div>Su</div><div>Mo</div><div>Tu</div><div>We</div><div>Th</div><div>Fr</div><div>Sa</div>
+                            </div>
+                            <div className="grid grid-cols-7 gap-1 text-center text-sm">
+                              {days}
+                            </div>
+                          </>
+                        );
+                      })()
                     ) : (
                       <>
                         {/* Weekly Timeline View */}
