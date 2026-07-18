@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Calendar as CalendarIcon, CheckSquare, Bell, Plus, Home, CreditCard, Gift, Heart, FileText } from 'lucide-react';
+import { useState } from 'react';
+import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText } from 'lucide-react';
 
 function App() {
   const [calendarView, setCalendarView] = useState('weekly');
