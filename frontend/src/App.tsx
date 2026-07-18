@@ -19,13 +19,8 @@ function App() {
     if (stored) {
       setReminders(JSON.parse(stored));
     } else {
-      // Default welcome reminders
-      const dummy = [
-        { id: '1', title: 'HDFC Credit Card Bill', category: 'Credit Card', date: '2026-07-20', time: '12:00' },
-        { id: '2', title: "Mom's Birthday", category: 'Birthday', date: '2026-07-25', time: '09:00' }
-      ];
-      setReminders(dummy);
-      localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(dummy));
+      setReminders([]);
+      localStorage.setItem(`reminders_${userMobile}`, JSON.stringify([]));
     }
   }, [userMobile]);
 
@@ -235,26 +230,35 @@ function App() {
                       <>
                         {/* Weekly Timeline View */}
                         <div className="space-y-3">
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center justify-center bg-slate-800/50 rounded-xl p-3 w-16 text-slate-400">
-                                    <span className="text-xs">Wed</span>
-                                    <span className="text-lg font-bold text-white">18</span>
-                                </div>
-                                <div className="flex-1 glass p-3 rounded-xl border-l-2 border-l-blue-500">
-                                    <p className="text-sm font-medium text-white">Credit Card Due</p>
-                                    <p className="text-xs text-slate-400">12:00 PM</p>
-                                </div>
-                            </div>
-                            <div className="flex gap-3">
-                                <div className="flex flex-col items-center justify-center bg-slate-800/50 rounded-xl p-3 w-16 text-slate-400">
-                                    <span className="text-xs">Sat</span>
-                                    <span className="text-lg font-bold">20</span>
-                                </div>
-                                <div className="flex-1 glass p-3 rounded-xl border-l-2 border-l-pink-500">
-                                    <p className="text-sm font-medium text-white">Mom's Birthday</p>
-                                    <p className="text-xs text-slate-400">All Day</p>
-                                </div>
-                            </div>
+                            {reminders.length === 0 ? (
+                              <p className="text-slate-500 text-sm text-center py-4">No events this week.</p>
+                            ) : (
+                              reminders.map(r => {
+                                const rDate = r.date ? new Date(r.date) : new Date();
+                                const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+                                const dayName = days[rDate.getDay()];
+                                const dateNum = rDate.getDate();
+                                
+                                let borderColor = 'border-l-slate-500';
+                                if (r.category === 'Credit Card') borderColor = 'border-l-blue-500';
+                                if (r.category === 'Birthday') borderColor = 'border-l-pink-500';
+                                if (r.category === 'Billing') borderColor = 'border-l-green-500';
+                                if (r.category === 'Event') borderColor = 'border-l-red-500';
+
+                                return (
+                                  <div key={`weekly-${r.id}`} className="flex gap-3">
+                                      <div className="flex flex-col items-center justify-center bg-slate-800/50 rounded-xl p-3 w-16 text-slate-400">
+                                          <span className="text-xs">{dayName}</span>
+                                          <span className="text-lg font-bold text-white">{dateNum}</span>
+                                      </div>
+                                      <div className={`flex-1 glass p-3 rounded-xl border-l-2 ${borderColor}`}>
+                                          <p className="text-sm font-medium text-white">{r.title}</p>
+                                          <p className="text-xs text-slate-400">{r.time || 'All Day'}</p>
+                                      </div>
+                                  </div>
+                                );
+                              })
+                            )}
                         </div>
                       </>
                     )}
