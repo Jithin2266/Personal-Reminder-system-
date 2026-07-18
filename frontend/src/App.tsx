@@ -1,8 +1,10 @@
 import { useState } from 'react';
 import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText } from 'lucide-react';
+import CreateReminderModal from './CreateReminderModal';
 
 function App() {
   const [calendarView, setCalendarView] = useState('weekly');
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   const getGreeting = () => {
     const hour = new Date().getHours();
@@ -66,7 +68,10 @@ function App() {
               <h2 className="text-3xl font-bold text-white mb-1">{getGreeting()}, Jithin! 👋</h2>
               <p className="text-slate-400">Here's your schedule for today.</p>
             </div>
-            <button className="bg-primary hover:bg-primary/90 text-dark px-5 py-2.5 rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(255,215,0,0.5)] flex items-center gap-2">
+            <button 
+              onClick={() => setIsModalOpen(true)}
+              className="bg-primary hover:bg-primary/90 text-dark px-5 py-2.5 rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(255,215,0,0.5)] flex items-center gap-2"
+            >
               <Plus className="w-5 h-5" />
               New Reminder
             </button>
@@ -232,6 +237,8 @@ function App() {
           </div>
         </main>
       </div>
+
+      <CreateReminderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
     </>
   );
 }
