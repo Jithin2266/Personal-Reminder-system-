@@ -4,6 +4,14 @@ import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, Fi
 function App() {
   const [calendarView, setCalendarView] = useState('weekly');
 
+  const getGreeting = () => {
+    const hour = new Date().getHours();
+    if (hour >= 5 && hour < 12) return 'Good Morning';
+    if (hour >= 12 && hour < 17) return 'Good Afternoon';
+    if (hour >= 17 && hour < 21) return 'Good Evening';
+    return 'Good Night';
+  };
+
   return (
     <>
       <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none"></div>
@@ -55,7 +63,7 @@ function App() {
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           <header className="flex justify-between items-center mb-8">
             <div>
-              <h2 className="text-3xl font-bold text-white mb-1">Good Morning, Jithin! 👋</h2>
+              <h2 className="text-3xl font-bold text-white mb-1">{getGreeting()}, Jithin! 👋</h2>
               <p className="text-slate-400">Here's your schedule for today.</p>
             </div>
             <button className="bg-primary hover:bg-primary/90 text-dark px-5 py-2.5 rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(255,215,0,0.5)] flex items-center gap-2">

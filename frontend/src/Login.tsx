@@ -1,0 +1,74 @@
+import { useState } from 'react';
+
+export default function Login() {
+  const [isLogin, setIsLogin] = useState(true);
+
+  return (
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-dark">
+      {/* Decorative background elements */}
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] rounded-full bg-primary/20 blur-[120px] pointer-events-none"></div>
+      <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] rounded-full bg-secondary/20 blur-[120px] pointer-events-none"></div>
+
+      <div className="w-full max-w-md p-8 glass rounded-2xl relative z-10 border-t border-primary/20 shadow-2xl">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold gradient-text mb-2">ReminderPro</h1>
+          <p className="text-slate-400 text-sm">
+            {isLogin ? 'Welcome back! Please enter your details.' : 'Create a new account to get started.'}
+          </p>
+        </div>
+
+        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); window.location.href = '/dashboard'; }}>
+          
+          {!isLogin && (
+            <div>
+              <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
+              <input 
+                type="text" 
+                placeholder="Jithin Raj" 
+                className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                required
+              />
+            </div>
+          )}
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Mobile Number</label>
+            <input 
+              type="tel" 
+              placeholder="+1 (555) 000-0000" 
+              className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              required
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-slate-300 mb-1">Password</label>
+            <input 
+              type="password" 
+              placeholder="••••••••" 
+              className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+              required
+            />
+          </div>
+
+          <button 
+            type="submit" 
+            className="w-full bg-primary hover:bg-primary/90 text-dark font-bold py-3 rounded-xl transition-all shadow-[0_0_15px_rgba(255,215,0,0.3)] hover:shadow-[0_0_25px_rgba(255,215,0,0.5)] mt-6"
+          >
+            {isLogin ? 'Sign In' : 'Create Account'}
+          </button>
+        </form>
+
+        <div className="mt-6 text-center text-sm text-slate-400">
+          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          <button 
+            onClick={() => setIsLogin(!isLogin)} 
+            className="text-primary font-medium hover:underline"
+          >
+            {isLogin ? 'Sign Up' : 'Log In'}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
