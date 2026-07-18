@@ -10,7 +10,9 @@ export default function Login() {
     // Get the mobile number from the form
     const form = e.target as HTMLFormElement;
     const mobileInput = form.querySelector('input[type="tel"]') as HTMLInputElement;
-    const mobile = mobileInput ? mobileInput.value : '';
+    const rawMobile = mobileInput ? mobileInput.value : '';
+    // Strip spaces and special characters to ensure a consistent lookup key
+    const mobile = rawMobile.replace(/\\D/g, '');
 
     const users = JSON.parse(localStorage.getItem('mockUsers') || '{}');
 
