@@ -100,9 +100,22 @@ function App() {
                   <p className="text-xs text-slate-400">Free Plan</p>
                 </div>
               </div>
-              <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Log Out">
-                <LogOut className="w-5 h-5" />
-              </button>
+              <div className="flex items-center gap-1">
+                <button 
+                  onClick={() => {
+                    localStorage.clear();
+                    sessionStorage.clear();
+                    window.location.href = '/';
+                  }} 
+                  className="p-2 text-slate-400 hover:text-red-400 transition-colors" 
+                  title="Wipe All Data & Log Out"
+                >
+                  <Trash2 className="w-5 h-5" />
+                </button>
+                <button onClick={handleLogout} className="p-2 text-slate-400 hover:text-red-400 transition-colors" title="Log Out">
+                  <LogOut className="w-5 h-5" />
+                </button>
+              </div>
             </div>
           </div>
         </aside>
