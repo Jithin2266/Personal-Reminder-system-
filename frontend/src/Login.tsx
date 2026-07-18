@@ -19,13 +19,16 @@ export default function Login() {
       users[mobile] = name;
       localStorage.setItem('mockUsers', JSON.stringify(users));
       sessionStorage.setItem('userName', name);
+      sessionStorage.setItem('userMobile', mobile);
     } else if (isLogin) {
       // Login: Retrieve from mock database based on mobile number
       if (users[mobile]) {
         sessionStorage.setItem('userName', users[mobile]);
+        sessionStorage.setItem('userMobile', mobile);
       } else {
         // Fallback if user not found in mock DB
         sessionStorage.setItem('userName', 'Guest User');
+        sessionStorage.setItem('userMobile', mobile || 'guest');
       }
     }
     

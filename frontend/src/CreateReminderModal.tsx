@@ -4,9 +4,10 @@ import { X } from 'lucide-react';
 interface CreateReminderModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onAddReminder: (reminder: any) => void;
 }
 
-export default function CreateReminderModal({ isOpen, onClose }: CreateReminderModalProps) {
+export default function CreateReminderModal({ isOpen, onClose, onAddReminder }: CreateReminderModalProps) {
   const [formData, setFormData] = useState({
     title: '',
     description: '',
@@ -22,8 +23,17 @@ export default function CreateReminderModal({ isOpen, onClose }: CreateReminderM
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Submitting reminder:', formData);
-    // TODO: Connect to backend API
+    const newReminder = {
+      id: Date.now().toString(),
+      ...formData
+    };
+    onAddReminder(newReminder);
+    
+    // Reset form
+    setFormData({
+      title: '', description: '', category: 'Billing', priority: 'Medium',
+      date: '', time: '', reminderBefore: '15m', repeat: 'None'
+    });
     onClose();
   };
 

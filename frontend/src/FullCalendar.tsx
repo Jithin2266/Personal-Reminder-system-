@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 
-export default function FullCalendar() {
+export default function FullCalendar({ reminders = [] }: { reminders?: any[] }) {
   const [currentDate, setCurrentDate] = useState(new Date());
 
   const getDaysInMonth = (year: number, month: number) => {
@@ -21,12 +21,27 @@ export default function FullCalendar() {
   const firstDay = getFirstDayOfMonth(year, month);
   const monthName = currentDate.toLocaleString('default', { month: 'long' });
 
-  // Dummy events
-  const events: Record<number, { title: string, color: string }[]> = {
-    18: [{ title: 'Credit Card Due', color: 'bg-blue-500' }],
-    20: [{ title: "Mom's Birthday", color: 'bg-pink-500' }],
-    25: [{ title: 'Internet Bill', color: 'bg-green-500' }]
-  };
+  // Map dynamic reminders to the calendar days
+  const events: Record<number, { title: string, color: string }[]> = {};
+  
+  reminders.forEach(reminder => {
+    if (reminder.date) {
+      // Expecting date format YYYY-MM-DD from the form
+      const rDate = new Date(reminder.date);
+      if (rDate.getFullYear() === year && rDate.getMonth() === month) {
+        const day = rDate.getDate();
+        if (!events[day]) events[day] = [];
+        
+        let color = 'bg-slate-500';
+        if (reminder.category === 'Credit Card') color = 'bg-blue-500';
+        if (reminder.category === 'Birthday') color = 'bg-pink-500';
+        if (reminder.category === 'Billing') color = 'bg-green-500';
+        if (reminder.category === 'Event') color = 'bg-red-500';
+
+        events[day].push({ title: reminder.title, color });
+      }
+    }
+  });
 
   const days = [];
   // Empty slots before the first day of the month

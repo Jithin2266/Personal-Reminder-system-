@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText, LogOut, Trash2 } from 'lucide-react';
 import CreateReminderModal from './CreateReminderModal';
 import FullCalendar from './FullCalendar';
@@ -7,10 +7,39 @@ function App() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [calendarView, setCalendarView] = useState('weekly');
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [visibleEvents, setVisibleEvents] = useState(['hdfc', 'mom', 'internet']);
-
+  
   const userName = sessionStorage.getItem('userName') || 'User';
+  const userMobile = sessionStorage.getItem('userMobile') || 'guest';
   const userInitial = userName.charAt(0).toUpperCase();
+
+  const [reminders, setReminders] = useState<any[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(`reminders_${userMobile}`);
+    if (stored) {
+      setReminders(JSON.parse(stored));
+    } else {
+      // Default welcome reminders
+      const dummy = [
+        { id: '1', title: 'HDFC Credit Card Bill', category: 'Credit Card', date: '2026-07-20', time: '12:00' },
+        { id: '2', title: "Mom's Birthday", category: 'Birthday', date: '2026-07-25', time: '09:00' }
+      ];
+      setReminders(dummy);
+      localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(dummy));
+    }
+  }, [userMobile]);
+
+  const handleAddReminder = (reminder: any) => {
+    const updated = [...reminders, reminder];
+    setReminders(updated);
+    localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(updated));
+  };
+
+  const handleDeleteReminder = (id: string) => {
+    const updated = reminders.filter(r => r.id !== id);
+    setReminders(updated);
+    localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(updated));
+  };
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -86,7 +115,7 @@ function App() {
         {/* Main Content */}
         <main className="flex-1 overflow-y-auto p-6 md:p-8">
           {activeTab === 'calendar' ? (
-            <FullCalendar />
+            <FullCalendar reminders={reminders} />
           ) : (
             <>
               <header className="flex justify-between items-center mb-8">
@@ -115,75 +144,31 @@ function App() {
                       Action Needed Soon
                     </h3>
                     <div className="space-y-3 relative z-10">
-                      {visibleEvents.includes('hdfc') && (
-                        <div className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 flex items-center justify-between group hover:bg-slate-800/60 transition-colors">
+                      {reminders.map(r => (
+                        <div key={r.id} className="bg-slate-800/40 p-4 rounded-xl border border-slate-700/50 flex items-center justify-between group hover:bg-slate-800/60 transition-colors">
                           <div className="flex items-center gap-4">
                             <input type="checkbox" className="w-5 h-5 rounded border-slate-600 bg-slate-700 text-primary focus:ring-primary focus:ring-offset-slate-900" />
                             <div>
-                              <p className="font-medium text-slate-200">HDFC Credit Card Bill</p>
+                              <p className="font-medium text-slate-200">{r.title}</p>
                               <div className="flex items-center gap-3 mt-1">
                                 <span className="text-xs bg-blue-500/20 text-blue-400 px-2 py-0.5 rounded flex items-center gap-1">
-                                  <CreditCard className="w-3 h-3" /> Credit Card
+                                  {r.category === 'Credit Card' && <CreditCard className="w-3 h-3" />}
+                                  {r.category === 'Birthday' && <Gift className="w-3 h-3" />}
+                                  {r.category === 'Billing' && <FileText className="w-3 h-3" />}
+                                  {r.category === 'Event' && <Heart className="w-3 h-3" />}
+                                  {r.category}
                                 </span>
-                                <p className="text-xs text-red-400 flex items-center gap-1">
-                                  Due in 2 days
+                                <p className="text-xs text-slate-400 flex items-center gap-1">
+                                  {r.date} {r.time}
                                 </p>
                               </div>
                             </div>
                           </div>
-                          <button onClick={() => setVisibleEvents(prev => prev.filter(e => e !== 'hdfc'))} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button onClick={() => handleDeleteReminder(r.id)} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
-                      )}
-                    </div>
-                  </section>
-
-                  {/* Today's Events */}
-                  <section>
-                    <div className="flex justify-between items-center mb-4">
-                        <h3 className="text-lg font-semibold text-white">Upcoming Events</h3>
-                        <button className="text-sm text-primary hover:text-primary/80">View All</button>
-                    </div>
-                    <div className="space-y-4">
-                      {/* Event Card */}
-                      {visibleEvents.includes('mom') && (
-                        <div className="glass p-5 rounded-2xl flex gap-5 items-center hover:scale-[1.01] transition-transform cursor-pointer border-l-4 border-l-pink-500 group">
-                          <div className="text-center w-16">
-                            <p className="text-lg font-bold text-white">July 20</p>
-                            <p className="text-xs text-slate-400">Saturday</p>
-                          </div>
-                          <div className="h-10 w-px bg-slate-700/50"></div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-white">Mom's Birthday</h4>
-                            <span className="text-xs bg-pink-500/20 text-pink-400 px-2 py-0.5 rounded inline-flex items-center gap-1 mt-1">
-                              <Gift className="w-3 h-3" /> Birthday
-                            </span>
-                          </div>
-                          <button onClick={(e) => { e.stopPropagation(); setVisibleEvents(prev => prev.filter(ev => ev !== 'mom')); }} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                      )}
-                      {/* Event Card */}
-                      {visibleEvents.includes('internet') && (
-                        <div className="glass p-5 rounded-2xl flex gap-5 items-center hover:scale-[1.01] transition-transform cursor-pointer border-l-4 border-l-green-500 group">
-                          <div className="text-center w-16">
-                            <p className="text-lg font-bold text-white">July 25</p>
-                            <p className="text-xs text-slate-400">Thursday</p>
-                          </div>
-                          <div className="h-10 w-px bg-slate-700/50"></div>
-                          <div className="flex-1">
-                            <h4 className="font-semibold text-white">Internet Bill Invoice</h4>
-                            <span className="text-xs bg-green-500/20 text-green-400 px-2 py-0.5 rounded inline-flex items-center gap-1 mt-1">
-                              <FileText className="w-3 h-3" /> Billing
-                            </span>
-                          </div>
-                          <button onClick={(e) => { e.stopPropagation(); setVisibleEvents(prev => prev.filter(ev => ev !== 'internet')); }} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Trash2 className="w-5 h-5" />
-                          </button>
-                        </div>
-                      )}
+                      ))}
                     </div>
                   </section>
                 </div>
@@ -281,7 +266,7 @@ function App() {
         </main>
       </div>
 
-      <CreateReminderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
+      <CreateReminderModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} onAddReminder={handleAddReminder} />
     </>
   );
 }
