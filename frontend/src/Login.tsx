@@ -2,6 +2,18 @@ import { useState } from 'react';
 
 export default function Login() {
   const [isLogin, setIsLogin] = useState(true);
+  const [name, setName] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!isLogin && name) {
+      localStorage.setItem('userName', name);
+    } else if (isLogin && !localStorage.getItem('userName')) {
+      // Fallback for demo purposes if they login without registering first
+      localStorage.setItem('userName', 'User');
+    }
+    window.location.href = '/dashboard';
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center relative overflow-hidden bg-dark">
@@ -17,14 +29,16 @@ export default function Login() {
           </p>
         </div>
 
-        <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); window.location.href = '/dashboard'; }}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           
           {!isLogin && (
             <div>
               <label className="block text-sm font-medium text-slate-300 mb-1">Full Name</label>
               <input 
                 type="text" 
-                placeholder="Jithin Raj" 
+                placeholder="e.g. John Doe" 
+                value={name}
+                onChange={(e) => setName(e.target.value)}
                 className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
                 required
               />
