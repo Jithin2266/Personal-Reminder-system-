@@ -33,12 +33,17 @@ export default function Login() {
 
           <div>
             <label className="block text-sm font-medium text-slate-300 mb-1">Mobile Number</label>
-            <input 
-              type="tel" 
-              placeholder="+1 (555) 000-0000" 
-              className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
-              required
-            />
+            <div className="flex">
+              <span className="inline-flex items-center px-4 py-3 rounded-l-xl border border-r-0 border-slate-700 bg-slate-800/80 text-slate-300 font-medium">
+                +91
+              </span>
+              <input 
+                type="tel" 
+                placeholder="98765 43210" 
+                className="w-full bg-slate-900/50 border border-slate-700 text-white rounded-r-xl px-4 py-3 focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary transition-colors"
+                required
+              />
+            </div>
           </div>
 
           <div>
