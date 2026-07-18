@@ -1,4 +1,4 @@
-import { Trash2, Edit, CreditCard, Gift, FileText, Heart } from 'lucide-react';
+import { Trash2, Edit, CreditCard, Gift, FileText, Heart, Share } from 'lucide-react';
 
 interface RemindersListProps {
   reminders: any[];
@@ -6,6 +6,28 @@ interface RemindersListProps {
 }
 
 export default function RemindersList({ reminders, onDelete }: RemindersListProps) {
+  const handleExportToApple = (reminder: any) => {
+    const textStr = `Reminder: ${reminder.title}\nDue: ${reminder.date} ${reminder.time || ''}`;
+    
+    // Try native Web Share API first (works perfectly on iOS Safari to add to Reminders)
+    if (navigator.share) {
+      navigator.share({
+        title: reminder.title,
+        text: textStr,
+        url: window.location.href,
+      }).catch(err => console.log('Error sharing', err));
+    } else {
+      // Fallback: Generate .ics file for desktop Apple Calendar
+      const icsData = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${reminder.title}\nDESCRIPTION:${reminder.description || ''}\nDTSTART:${reminder.date.replace(/-/g, '')}T${(reminder.time || '09:00').replace(':', '')}00\nEND:VEVENT\nEND:VCALENDAR`;
+      const blob = new Blob([icsData], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reminder.title.replace(/\\s+/g, '_')}.ics`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  };
   return (
     <div className="h-full flex flex-col">
       <header className="flex justify-between items-center mb-6">
@@ -78,6 +100,13 @@ export default function RemindersList({ reminders, onDelete }: RemindersListProp
                       </td>
                       <td className="px-6 py-4 text-right">
                         <div className="flex items-center justify-end gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={() => handleExportToApple(r)}
+                            className="p-1.5 text-slate-400 hover:text-blue-400 bg-slate-800 hover:bg-slate-700 rounded-md transition-colors"
+                            title="Add to iOS Reminders / Calendar"
+                          >
+                            <Share className="w-4 h-4" />
+                          </button>
                           <button 
                             className="p-1.5 text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 rounded-md transition-colors"
                             title="Edit"

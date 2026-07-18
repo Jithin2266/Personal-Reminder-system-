@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText, LogOut, Trash2 } from 'lucide-react';
+import { Calendar as CalendarIcon, Bell, Plus, Home, CreditCard, Gift, Heart, FileText, LogOut, Trash2, Share } from 'lucide-react';
 import CreateReminderModal from './CreateReminderModal';
 import FullCalendar from './FullCalendar';
 import RemindersList from './RemindersList';
@@ -35,6 +35,26 @@ function App() {
     const updated = reminders.filter(r => r.id !== id);
     setReminders(updated);
     localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(updated));
+  };
+
+  const handleExportToApple = (reminder: any) => {
+    const textStr = `Reminder: ${reminder.title}\nDue: ${reminder.date} ${reminder.time || ''}`;
+    if (navigator.share) {
+      navigator.share({
+        title: reminder.title,
+        text: textStr,
+        url: window.location.href,
+      }).catch(err => console.log('Error sharing', err));
+    } else {
+      const icsData = `BEGIN:VCALENDAR\nVERSION:2.0\nBEGIN:VEVENT\nSUMMARY:${reminder.title}\nDESCRIPTION:${reminder.description || ''}\nDTSTART:${reminder.date.replace(/-/g, '')}T${(reminder.time || '09:00').replace(':', '')}00\nEND:VEVENT\nEND:VCALENDAR`;
+      const blob = new Blob([icsData], { type: 'text/calendar' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${reminder.title.replace(/\\s+/g, '_')}.ics`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
   };
 
   const handleLogout = () => {
@@ -178,9 +198,14 @@ function App() {
                               </div>
                             </div>
                           </div>
-                          <button onClick={() => handleDeleteReminder(r.id)} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                            <Trash2 className="w-4 h-4" />
-                          </button>
+                            <div className="flex gap-1">
+                              <button onClick={(e) => { e.stopPropagation(); handleExportToApple(r); }} className="p-2 text-slate-500 hover:text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity" title="Add to iOS Reminders">
+                                <Share className="w-5 h-5" />
+                              </button>
+                              <button onClick={(e) => { e.stopPropagation(); handleDeleteReminder(r.id); }} className="p-2 text-slate-500 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-opacity" title="Delete">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                         </div>
                       ))}
                     </div>
