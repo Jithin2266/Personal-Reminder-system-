@@ -12,22 +12,28 @@ export default function Login() {
     const form = e.target as HTMLFormElement;
     const mobileInput = form.querySelector('input[type="tel"]') as HTMLInputElement;
     const passInput = form.querySelector('input[type="password"]') as HTMLInputElement;
+    const nameInput = form.querySelector('input[type="text"]') as HTMLInputElement;
     
     const rawMobile = mobileInput ? mobileInput.value : '';
-    const mobile = rawMobile.replace(/\\D/g, '');
+    const mobile = rawMobile.replace(/\D/g, '');
     const password = passInput ? passInput.value : '';
+    const fullName = nameInput ? nameInput.value : name; // Fallback to state if input not found
 
     const users = JSON.parse(localStorage.getItem('mockUsers') || '{}');
 
-    if (!isLogin && name) {
+    if (!isLogin) {
+      if (!fullName) {
+        setError('Please enter your full name.');
+        return;
+      }
       if (users[mobile]) {
         setError('An account with this mobile number already exists.');
         return;
       }
       // Registration: Save to mock database
-      users[mobile] = { name, password };
+      users[mobile] = { name: fullName, password };
       localStorage.setItem('mockUsers', JSON.stringify(users));
-      sessionStorage.setItem('userName', name);
+      sessionStorage.setItem('userName', fullName);
       sessionStorage.setItem('userMobile', mobile);
       window.location.href = '/dashboard';
     } else if (isLogin) {

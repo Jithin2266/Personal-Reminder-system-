@@ -16,25 +16,25 @@ function App() {
   const [reminders, setReminders] = useState<any[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(`reminders_${userMobile}`);
+    const stored = localStorage.getItem(`reminders_v2_${userMobile}`);
     if (stored) {
       setReminders(JSON.parse(stored));
     } else {
       setReminders([]);
-      localStorage.setItem(`reminders_${userMobile}`, JSON.stringify([]));
+      localStorage.setItem(`reminders_v2_${userMobile}`, JSON.stringify([]));
     }
   }, [userMobile]);
 
   const handleAddReminder = (reminder: any) => {
     const updated = [...reminders, reminder];
     setReminders(updated);
-    localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(updated));
+    localStorage.setItem(`reminders_v2_${userMobile}`, JSON.stringify(updated));
   };
 
   const handleDeleteReminder = (id: string) => {
     const updated = reminders.filter(r => r.id !== id);
     setReminders(updated);
-    localStorage.setItem(`reminders_${userMobile}`, JSON.stringify(updated));
+    localStorage.setItem(`reminders_v2_${userMobile}`, JSON.stringify(updated));
   };
 
   const handleExportToApple = (reminder: any) => {
