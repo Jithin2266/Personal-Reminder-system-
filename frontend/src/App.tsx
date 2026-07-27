@@ -5,36 +5,89 @@ import FullCalendar from './FullCalendar';
 import RemindersList from './RemindersList';
 
 function App() {
+  const userName = sessionStorage.getItem('userName');
+  const userMobile = sessionStorage.getItem('userMobile');
+  const authToken = sessionStorage.getItem('authToken');
+  const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
+  useEffect(() => {
+    if (!userMobile || !userName || !authToken) {
+      window.location.href = '/';
+    }
+  }, [userMobile, userName, authToken]);
+
   const [activeTab, setActiveTab] = useState('dashboard');
   const [calendarView, setCalendarView] = useState('weekly');
   const [isModalOpen, setIsModalOpen] = useState(false);
   
-  const userName = sessionStorage.getItem('userName') || 'User';
-  const userMobile = sessionStorage.getItem('userMobile') || 'guest';
-  const userInitial = userName.charAt(0).toUpperCase();
+  const userInitial = (userName || 'U').charAt(0).toUpperCase();
 
   const [reminders, setReminders] = useState<any[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(`reminders_v2_${userMobile}`);
-    if (stored) {
-      setReminders(JSON.parse(stored));
-    } else {
-      setReminders([]);
-      localStorage.setItem(`reminders_v2_${userMobile}`, JSON.stringify([]));
-    }
-  }, [userMobile]);
+    if (!authToken) return;
+    fetch(`${API_URL}/events`, {
+      headers: { 'x-user-id': authToken }
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        const formatted = data.map((event: any) => {
+          const d = new Date(event.date);
+          return {
+            id: event.id,
+            title: event.title,
+            description: event.description || '',
+            category: event.category,
+            priority: event.priority,
+            date: d.toISOString().split('T')[0],
+            time: d.toTimeString().substring(0, 5),
+            repeat: event.isRecurring ? 'Monthly' : 'None',
+            reminderBefore: '15m'
+          };
+        });
+        setReminders(formatted);
+      }
+    })
+    .catch(err => console.error('Error fetching reminders:', err));
+  }, [authToken, API_URL]);
 
-  const handleAddReminder = (reminder: any) => {
-    const updated = [...reminders, reminder];
-    setReminders(updated);
-    localStorage.setItem(`reminders_v2_${userMobile}`, JSON.stringify(updated));
+  const handleAddReminder = async (reminder: any) => {
+    try {
+      const res = await fetch(`${API_URL}/events`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'x-user-id': authToken || ''
+        },
+        body: JSON.stringify({
+          title: reminder.title,
+          description: reminder.description,
+          date: `${reminder.date}T${reminder.time}:00`,
+          category: reminder.category,
+          isRecurring: reminder.repeat !== 'None',
+          priority: reminder.priority
+        })
+      });
+      
+      const newEvent = await res.json();
+      reminder.id = newEvent.id;
+      setReminders([...reminders, reminder]);
+    } catch (err) {
+      console.error('Error creating reminder:', err);
+    }
   };
 
-  const handleDeleteReminder = (id: string) => {
-    const updated = reminders.filter(r => r.id !== id);
-    setReminders(updated);
-    localStorage.setItem(`reminders_v2_${userMobile}`, JSON.stringify(updated));
+  const handleDeleteReminder = async (id: string) => {
+    try {
+      await fetch(`${API_URL}/events/${id}`, {
+        method: 'DELETE',
+        headers: { 'x-user-id': authToken || '' }
+      });
+      setReminders(reminders.filter(r => r.id !== id));
+    } catch (err) {
+      console.error('Error deleting reminder:', err);
+    }
   };
 
   const handleExportToApple = (reminder: any) => {
@@ -164,7 +217,7 @@ function App() {
             <>
               <header className="flex justify-between items-center mb-8">
                 <div>
-                  <h2 className="text-3xl font-bold text-white mb-1">{getGreeting()}, {userName.split(' ')[0]}! 👋</h2>
+                  <h2 className="text-3xl font-bold text-white mb-1">{getGreeting()}, {userName?.split(' ')[0] || ''}! 👋</h2>
                   <p className="text-slate-400">Here's your schedule for today.</p>
                 </div>
                 <button 

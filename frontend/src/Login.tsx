@@ -5,7 +5,7 @@ export default function Login() {
   const [name, setName] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     
@@ -15,47 +15,55 @@ export default function Login() {
     const nameInput = form.querySelector('input[type="text"]') as HTMLInputElement;
     
     const rawMobile = mobileInput ? mobileInput.value : '';
-    const mobile = rawMobile.replace(/\D/g, '');
+    const mobile = rawMobile.replace(/\\D/g, '');
     const password = passInput ? passInput.value : '';
     const fullName = nameInput ? nameInput.value : name; // Fallback to state if input not found
 
-    const users = JSON.parse(localStorage.getItem('mockUsers') || '{}');
+    const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
 
-    if (!isLogin) {
-      if (!fullName) {
-        setError('Please enter your full name.');
-        return;
-      }
-      if (users[mobile]) {
-        setError('An account with this mobile number already exists.');
-        return;
-      }
-      // Registration: Save to mock database
-      users[mobile] = { name: fullName, password };
-      localStorage.setItem('mockUsers', JSON.stringify(users));
-      sessionStorage.setItem('userName', fullName);
-      sessionStorage.setItem('userMobile', mobile);
-      window.location.href = '/dashboard';
-    } else if (isLogin) {
-      // Login: Retrieve and validate
-      const user = users[mobile];
-      if (!user) {
-        setError('No account found with this mobile number.');
-        return;
-      }
-      
-      const savedPassword = typeof user === 'string' ? '' : user.password;
-      const userName = typeof user === 'string' ? user : user.name;
+    try {
+      if (!isLogin) {
+        if (!fullName) {
+          setError('Please enter your full name.');
+          return;
+        }
+        
+        const res = await fetch(`${API_URL}/auth/register`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: mobile, name: fullName, password })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.message || 'Registration failed');
+          return;
+        }
 
-      // Only check password if they registered after this fix (so legacy test accounts still work)
-      if (typeof user === 'object' && savedPassword !== password) {
-        setError('Incorrect password. Please try again.');
-        return;
-      }
+        sessionStorage.setItem('authToken', data.token);
+        sessionStorage.setItem('userName', data.user.name);
+        sessionStorage.setItem('userMobile', data.user.phone);
+        window.location.href = '/dashboard';
+      } else {
+        const res = await fetch(`${API_URL}/auth/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ phone: mobile, password })
+        });
+        
+        const data = await res.json();
+        if (!res.ok) {
+          setError(data.message || 'Invalid credentials');
+          return;
+        }
 
-      sessionStorage.setItem('userName', userName);
-      sessionStorage.setItem('userMobile', mobile);
-      window.location.href = '/dashboard';
+        sessionStorage.setItem('authToken', data.token);
+        sessionStorage.setItem('userName', data.user.name);
+        sessionStorage.setItem('userMobile', data.user.phone);
+        window.location.href = '/dashboard';
+      }
+    } catch (err) {
+      setError('Network error. Make sure the backend server is running.');
     }
   };
 
